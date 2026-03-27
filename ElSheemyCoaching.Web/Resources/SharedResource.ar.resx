@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+
+  <data name="SiteTitle" xml:space="preserve"><value>ElSheemy Coaching</value></data>
+  <data name="Programs" xml:space="preserve"><value>البرامج</value></data>
+  <data name="Home" xml:space="preserve"><value>الرئيسية</value></data>
+  <data name="Login" xml:space="preserve"><value>تسجيل الدخول</value></data>
+  <data name="Register" xml:space="preserve"><value>إنشاء حساب</value></data>
+  <data name="Logout" xml:space="preserve"><value>خروج</value></data>
+  <data name="Dashboard" xml:space="preserve"><value>لوحة التحكم</value></data>
+  <data name="BuyNow" xml:space="preserve"><value>اشتري الآن</value></data>
+  <data name="ViewDetails" xml:space="preserve"><value>عرض التفاصيل</value></data>
+  <data name="Featured" xml:space="preserve"><value>مميز</value></data>
+  <data name="OrderNumber" xml:space="preserve"><value>رقم الطلب</value></data>
+  <data name="AmountDue" xml:space="preserve"><value>المبلغ المطلوب</value></data>
+  <data name="SubmitProof" xml:space="preserve"><value>إرسال إثبات الدفع</value></data>
+  <data name="AwaitingVerification" xml:space="preserve"><value>في انتظار التأكيد</value></data>
+  <data name="Paid" xml:space="preserve"><value>مدفوع</value></data>
+  <data name="Cancelled" xml:space="preserve"><value>ملغي</value></data>
+  <data name="Approve" xml:space="preserve"><value>اعتماد</value></data>
+  <data name="Reject" xml:space="preserve"><value>رفض</value></data>
+  <data name="Currency" xml:space="preserve"><value>ج.م</value></data>
+</root>

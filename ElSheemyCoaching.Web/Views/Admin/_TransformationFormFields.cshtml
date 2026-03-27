@@ -1,0 +1,105 @@
+@model ElSheemyCoaching.Core.DTOs.TransformationFormViewModel
+@using Microsoft.AspNetCore.Localization
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var isArabic = requestCulture?.RequestCulture.Culture.Name.StartsWith("ar") ?? true;
+}
+
+<!-- Info -->
+<div class="bg-dark-900/50 border border-white/5 rounded-2xl p-6 space-y-5">
+    <h2 class="font-bold text-lg border-b border-white/5 pb-3">@(isArabic ? "التفاصيل" : "Details")</h2>
+
+    <div class="grid md:grid-cols-2 gap-5">
+        <div>
+            <label asp-for="TitleAr" class="block text-sm font-medium text-dark-300 mb-1.5"></label>
+            <input asp-for="TitleAr"
+                   class="w-full px-4 py-3 rounded-xl bg-dark-800 border border-white/5 text-white placeholder-dark-500 focus:outline-none focus:border-brand-500/40 focus:ring-1 focus:ring-brand-500/20 transition-all" />
+            <span asp-validation-for="TitleAr" class="text-red-400 text-xs mt-1 block"></span>
+        </div>
+        <div>
+            <label asp-for="TitleEn" class="block text-sm font-medium text-dark-300 mb-1.5"></label>
+            <input asp-for="TitleEn" dir="ltr"
+                   class="w-full px-4 py-3 rounded-xl bg-dark-800 border border-white/5 text-white placeholder-dark-500 focus:outline-none focus:border-brand-500/40 focus:ring-1 focus:ring-brand-500/20 transition-all" />
+            <span asp-validation-for="TitleEn" class="text-red-400 text-xs mt-1 block"></span>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-5">
+        <div>
+            <label asp-for="DescriptionAr" class="block text-sm font-medium text-dark-300 mb-1.5"></label>
+            <textarea asp-for="DescriptionAr" rows="3"
+                      class="w-full px-4 py-3 rounded-xl bg-dark-800 border border-white/5 text-white placeholder-dark-500 focus:outline-none focus:border-brand-500/40 focus:ring-1 focus:ring-brand-500/20 transition-all resize-none"></textarea>
+        </div>
+        <div>
+            <label asp-for="DescriptionEn" class="block text-sm font-medium text-dark-300 mb-1.5"></label>
+            <textarea asp-for="DescriptionEn" rows="3" dir="ltr"
+                      class="w-full px-4 py-3 rounded-xl bg-dark-800 border border-white/5 text-white placeholder-dark-500 focus:outline-none focus:border-brand-500/40 focus:ring-1 focus:ring-brand-500/20 transition-all resize-none"></textarea>
+        </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center gap-6 pt-2">
+        <label class="flex items-center gap-2 cursor-pointer">
+            <input asp-for="IsVisible" type="checkbox" class="rounded border-white/10 bg-dark-800 text-brand-500 focus:ring-brand-500" />
+            <span class="text-sm text-dark-300">@(isArabic ? "مرئي للعملاء" : "Visible to clients")</span>
+        </label>
+        
+        <div class="flex items-center gap-3">
+            <label asp-for="DisplayOrder" class="text-sm font-medium text-dark-300"></label>
+            <input asp-for="DisplayOrder" type="number" dir="ltr"
+                   class="w-20 px-3 py-1.5 rounded-lg bg-dark-800 border border-white/5 text-white text-center focus:outline-none focus:border-brand-500/40 focus:ring-1 focus:ring-brand-500/20 transition-all" />
+        </div>
+    </div>
+</div>
+
+<!-- Images -->
+<div class="bg-dark-900/50 border border-white/5 rounded-2xl p-6 space-y-5">
+    <h2 class="font-bold text-lg border-b border-white/5 pb-3">@(isArabic ? "الصور (قبل وبعد)" : "Images (Before & After)")</h2>
+
+    <div class="grid md:grid-cols-2 gap-6">
+        <!-- Before Image -->
+        <div>
+            <label class="block text-sm font-medium text-dark-300 mb-2">
+                @(isArabic ? "صورة قبل" : "Before Image")
+                @if (Model.Id == 0) { <span class="text-red-400">*</span> }
+            </label>
+            <div class="border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-brand-500/30 transition-all cursor-pointer relative bg-dark-800/50"
+                 @@click="$refs.beforeInput.click()">
+                <template x-if="!beforePreview">
+                    <div>
+                        <svg class="w-8 h-8 text-dark-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <p class="text-dark-400 text-xs">@(isArabic ? "اختر صورة للمرحلة الأولى" : "Choose phase 1 image")</p>
+                    </div>
+                </template>
+                <template x-if="beforePreview">
+                    <img :src="beforePreview" class="h-48 w-full object-cover rounded-lg" />
+                </template>
+                <input type="file" name="BeforeImage" accept="image/*" class="hidden" x-ref="beforeInput"
+                       @@change="if ($event.target.files[0]) { const reader = new FileReader(); reader.onload = e => beforePreview = e.target.result; reader.readAsDataURL($event.target.files[0]); }" />
+            </div>
+            <span asp-validation-for="BeforeImage" class="text-red-400 text-xs mt-1 block"></span>
+        </div>
+
+        <!-- After Image -->
+        <div>
+            <label class="block text-sm font-medium text-dark-300 mb-2">
+                @(isArabic ? "صورة بعد" : "After Image")
+                @if (Model.Id == 0) { <span class="text-red-400">*</span> }
+            </label>
+            <div class="border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-brand-500/30 transition-all cursor-pointer relative bg-dark-800/50"
+                 @@click="$refs.afterInput.click()">
+                <template x-if="!afterPreview">
+                    <div>
+                        <svg class="w-8 h-8 text-brand-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <p class="text-brand-300/80 text-xs">@(isArabic ? "اختر صورة النتيجة" : "Choose result image")</p>
+                    </div>
+                </template>
+                <template x-if="afterPreview">
+                    <img :src="afterPreview" class="h-48 w-full object-cover rounded-lg" />
+                </template>
+                <input type="file" name="AfterImage" accept="image/*" class="hidden" x-ref="afterInput"
+                       @@change="if ($event.target.files[0]) { const reader = new FileReader(); reader.onload = e => afterPreview = e.target.result; reader.readAsDataURL($event.target.files[0]); }" />
+            </div>
+            <span asp-validation-for="AfterImage" class="text-red-400 text-xs mt-1 block"></span>
+        </div>
+    </div>
+</div>

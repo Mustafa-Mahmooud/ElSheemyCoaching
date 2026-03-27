@@ -1,0 +1,124 @@
+@model ElSheemyCoaching.Core.Entities.WorkoutProgram
+@using Microsoft.AspNetCore.Localization
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var isArabic = requestCulture?.RequestCulture.Culture.Name.StartsWith("ar") ?? true;
+    ViewData["Title"] = isArabic ? Model.TitleAr : Model.TitleEn;
+}
+
+<section class="max-w-5xl mx-auto px-4 py-16">
+    <div class="grid md:grid-cols-2 gap-12 items-start">
+        <!-- Cover Image -->
+        <div class="bg-dark-900 rounded-2xl overflow-hidden border border-white/5">
+            @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+            {
+                <img src="@Model.CoverImageUrl" alt="@(isArabic ? Model.TitleAr : Model.TitleEn)"
+                     class="w-full aspect-square object-cover object-top" />
+            }
+            else
+            {
+                <div class="w-full aspect-square flex items-center justify-center bg-dark-800">
+                    <svg class="w-24 h-24 text-dark-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            }
+        </div>
+
+        <!-- Details -->
+        <div>
+            @if (Model.IsFeatured)
+            {
+                <span class="inline-block px-3 py-1 rounded-full bg-brand-600/15 text-brand-400 text-xs font-semibold mb-4">
+                    @(isArabic ? "⭐ برنامج مميز" : "⭐ Featured Program")
+                </span>
+            }
+
+            <h1 class="text-3xl sm:text-4xl font-extrabold mb-4">
+                @(isArabic ? Model.TitleAr : Model.TitleEn)
+            </h1>
+
+            <p class="text-dark-300 leading-relaxed mb-6">
+                @(isArabic ? Model.DescriptionAr : Model.DescriptionEn)
+            </p>
+
+            <!-- Price -->
+            <div class="flex items-center gap-4 mb-8 p-4 rounded-xl bg-dark-900/50 border border-white/5">
+                <span class="text-3xl font-extrabold text-brand-400">
+                    @Model.Price.ToString("N0") @(isArabic ? "ج.م" : "EGP")
+                </span>
+                @if (Model.CompareAtPrice.HasValue && Model.CompareAtPrice > Model.Price)
+                {
+                    <span class="text-dark-500 line-through text-lg">
+                        @Model.CompareAtPrice.Value.ToString("N0")
+                    </span>
+                    <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium">
+                        @(isArabic ? "وفر" : "Save") @(Math.Round((1 - Model.Price / Model.CompareAtPrice.Value) * 100))%
+                    </span>
+                }
+            </div>
+
+            <!-- Variants (if any) -->
+            @if (Model.Variants.Any())
+            {
+                <div class="mb-6" x-data="{ selectedVariant: null, selectedPrice: @Model.Price }">
+                    <label class="block text-sm font-medium text-dark-300 mb-3">
+                        @(isArabic ? "اختر النوع:" : "Choose Variant:")
+                    </label>
+                    <div class="space-y-2">
+                        @foreach (var variant in Model.Variants)
+                        {
+                            <label class="flex items-center gap-3 p-3 rounded-xl border border-white/5 hover:border-brand-500/20 cursor-pointer transition-all"
+                                   :class="{ 'border-brand-500/40 bg-brand-600/5': selectedVariant === @variant.Id }">
+                                <input type="radio" name="variantId" value="@variant.Id"
+                                       x-model.number="selectedVariant"
+                                       @@change="selectedPrice = @variant.Price"
+                                       class="text-brand-500 focus:ring-brand-500" />
+                                <span class="flex-1">@(isArabic ? variant.NameAr : variant.NameEn)</span>
+                                <span class="font-bold text-brand-400">@variant.Price.ToString("N0") @(isArabic ? "ج.م" : "EGP")</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Buy Button -->
+            <form asp-controller="Checkout" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="programId" value="@Model.Id" />
+                <button type="submit"
+                        class="w-full py-4 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold text-lg transition-all transform hover:scale-[1.02] shadow-lg shadow-brand-600/25">
+                    @(isArabic ? "اشتري الآن" : "Buy Now")
+                </button>
+            </form>
+
+            <!-- Trust badges -->
+            <div class="mt-6 grid grid-cols-2 gap-3">
+                <div class="flex items-center gap-2 text-dark-400 text-sm">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    @(isArabic ? "تحميل PDF فوري" : "Instant PDF Download")
+                </div>
+                <div class="flex items-center gap-2 text-dark-400 text-sm">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    @(isArabic ? "دفع عبر InstaPay" : "InstaPay Payment")
+                </div>
+                <div class="flex items-center gap-2 text-dark-400 text-sm">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    @(isArabic ? "دعم فني" : "Technical Support")
+                </div>
+                <div class="flex items-center gap-2 text-dark-400 text-sm">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    @(isArabic ? "محتوى عربي" : "Arabic Content")
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

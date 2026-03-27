@@ -1,0 +1,139 @@
+@model ElSheemyCoaching.Core.DTOs.InstaPayUploadViewModel
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "إثبات الدفع";
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var isArabic = requestCulture?.RequestCulture.Culture.Name.StartsWith("ar") ?? true;
+}
+
+<section class="max-w-2xl mx-auto px-4 py-16">
+    <div class="bg-dark-900/50 border border-white/5 rounded-2xl p-8">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 rounded-2xl bg-brand-600/10 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+            </div>
+            <h1 class="text-2xl font-extrabold mb-2">@(isArabic ? "إثبات الدفع - InstaPay" : "Payment Proof - InstaPay")</h1>
+            <p class="text-dark-400">@(isArabic ? "أكمل التحويل ثم ارفع صورة الإيصال" : "Complete the transfer and upload the receipt")</p>
+        </div>
+
+        <!-- Order Info -->
+        <div class="bg-dark-800/50 rounded-xl p-5 mb-8 border border-white/5">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-dark-400 text-sm">@(isArabic ? "رقم الطلب" : "Order Number")</span>
+                <span class="font-mono font-bold text-brand-400">@Model.OrderNumber</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-dark-400 text-sm">@(isArabic ? "المبلغ المطلوب" : "Amount Due")</span>
+                <span class="text-2xl font-extrabold text-white">@Model.Total.ToString("N0") @(isArabic ? "ج.م" : "EGP")</span>
+            </div>
+        </div>
+
+        <!-- InstaPay Instructions -->
+        <div class="bg-amber-500/5 border border-amber-500/20 rounded-xl p-5 mb-8">
+            <h3 class="font-bold text-amber-400 mb-3 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                @(isArabic ? "تعليمات الدفع" : "Payment Instructions")
+            </h3>
+            <ol class="text-dark-300 text-sm space-y-2 list-decimal list-inside">
+                <li>@(isArabic ? "افتح تطبيق البنك الخاص بك" : "Open your banking app")</li>
+                <li>@(isArabic ? "اختر التحويل عبر InstaPay" : "Select InstaPay transfer")</li>
+                <li>
+                    @(isArabic ? "حوّل المبلغ إلى الحساب:" : "Transfer the amount to:")
+                    <div class="mt-2">
+                        <a href="@Model.InstaPayHandle.Replace("@", "")"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="font-mono font-bold text-white bg-dark-800 px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-brand-600/20 hover:border-brand-500/30 border border-white/5 transition-all cursor-pointer group w-full min-w-0"
+                               onclick="navigator.clipboard.writeText('@Model.InstaPayHandle'); this.classList.add('bg-green-600/20', 'border-green-500/30'); setTimeout(() => this.classList.remove('bg-green-600/20', 'border-green-500/30'), 2000); return true;">
+                            <svg class="w-5 h-5 text-brand-400 group-hover:text-brand-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <span dir="ltr" class="truncate">@Model.InstaPayHandle</span>
+                            <svg class="w-4 h-4 text-dark-400 group-hover:text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                        </a>
+                        <p class="text-xs text-dark-500 mt-2">
+                            @(isArabic ? "انقر لفتح InstaPay أو نسخ الحساب" : "Click to open InstaPay or copy account")
+                        </p>
+                    </div>
+                </li>
+                <li>@(isArabic ? "التقط صورة للإيصال وارفعها أدناه" : "Take a screenshot of the receipt and upload below")</li>
+            </ol>
+        </div>
+
+        <!-- Upload Form -->
+        <form asp-controller="Checkout" asp-action="SubmitProof" method="post" enctype="multipart/form-data"
+              x-data="{ fileName: '', preview: '' }">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="OrderId" />
+
+            <div class="space-y-5">
+                <!-- File Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-dark-300 mb-2">
+                        @(isArabic ? "صورة إثبات الدفع *" : "Payment Proof Image *")
+                    </label>
+                    <div class="border-2 border-dashed border-white/10 rounded-xl p-8 text-center hover:border-brand-500/30 transition-all cursor-pointer relative"
+                         @@click="$refs.fileInput.click()">
+                        <template x-if="!preview">
+                            <div>
+                                <svg class="w-12 h-12 text-dark-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p class="text-dark-400 text-sm">@(isArabic ? "اضغط لرفع الصورة" : "Click to upload image")</p>
+                                <p class="text-dark-600 text-xs mt-1">PNG, JPG, WEBP</p>
+                            </div>
+                        </template>
+                        <template x-if="preview">
+                            <div>
+                                <img :src="preview" class="max-h-48 mx-auto rounded-lg" />
+                                <p class="text-dark-400 text-sm mt-2" x-text="fileName"></p>
+                            </div>
+                        </template>
+                        <input type="file" name="ProofImage" accept="image/*" class="hidden" x-ref="fileInput"
+                               @@change="
+                                   fileName = $event.target.files[0]?.name || '';
+                                   if ($event.target.files[0]) {
+                                       const reader = new FileReader();
+                                       reader.onload = e => preview = e.target.result;
+                                       reader.readAsDataURL($event.target.files[0]);
+                                   }
+                               " />
+                    </div>
+                    <span asp-validation-for="ProofImage" class="text-red-400 text-xs mt-1 block"></span>
+                </div>
+
+                <!-- Transaction Ref -->
+                <div>
+                    <label asp-for="TransactionRef" class="block text-sm font-medium text-dark-300 mb-1.5"></label>
+                    <input asp-for="TransactionRef"
+                           class="w-full px-4 py-3 rounded-xl bg-dark-800 border border-white/5 text-white placeholder-dark-500 focus:outline-none focus:border-brand-500/40 focus:ring-1 focus:ring-brand-500/20 transition-all"
+                           placeholder="@(isArabic ? "مثال: TXN123456" : "e.g., TXN123456")" dir="ltr" />
+                </div>
+
+                <button type="submit"
+                        class="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-semibold transition-all">
+                    @(isArabic ? "إرسال إثبات الدفع" : "Submit Payment Proof")
+                </button>
+            </div>
+        </form>
+        <!-- Cancel Order -->
+        <div class="mt-4 text-center">
+            <form asp-controller="Checkout" asp-action="Cancel" method="post"
+                  onsubmit="return confirm('@(isArabic ? "هل تريد إلغاء الطلب والعودة؟" : "Cancel this order and go back?")')">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="@Model.OrderId" />
+                <button type="submit" class="text-sm text-dark-500 hover:text-red-400 transition-colors underline underline-offset-2">
+                    @(isArabic ? "إلغاء الطلب والعودة" : "Cancel order and go back")
+                </button>
+            </form>
+        </div>
+    </div>
+</section>

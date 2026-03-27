@@ -1,0 +1,30 @@
+@using Microsoft.AspNetCore.Localization
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var isArabic = requestCulture?.RequestCulture.Culture.Name.StartsWith("ar") ?? true;
+    
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+}
+
+<div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+    <a href="@Url.Action("Index", "Admin")"
+       class="px-4 py-2 rounded-lg text-sm font-medium transition-all @(currentAction == "Index" || currentAction == "" ? "bg-brand-600/15 text-brand-400 border border-brand-500/20" : "bg-dark-800 text-dark-400 hover:text-white border border-white/5")">
+        @(isArabic ? "نظرة عامة" : "Overview")
+    </a>
+    <a href="@Url.Action("Orders", "Admin")"
+       class="px-4 py-2 rounded-lg text-sm font-medium transition-all @(currentAction == "Orders" ? "bg-brand-600/15 text-brand-400 border border-brand-500/20" : "bg-dark-800 text-dark-400 hover:text-white border border-white/5")">
+        @(isArabic ? "الطلبات" : "Orders")
+    </a>
+    <a href="@Url.Action("Programs", "Admin")"
+       class="px-4 py-2 rounded-lg text-sm font-medium transition-all @(currentAction == "Programs" ? "bg-brand-600/15 text-brand-400 border border-brand-500/20" : "bg-dark-800 text-dark-400 hover:text-white border border-white/5")">
+        @(isArabic ? "البرامج" : "Programs")
+    </a>
+    <a href="@Url.Action("Transformations", "Admin")"
+       class="px-4 py-2 rounded-lg text-sm font-medium transition-all @(currentAction == "Transformations" ? "bg-brand-600/15 text-brand-400 border border-brand-500/20" : "bg-dark-800 text-dark-400 hover:text-white border border-white/5")">
+        @(isArabic ? "التحولات" : "Transformations")
+    </a>
+    <a href="@Url.Action("Customers", "Admin")"
+       class="px-4 py-2 rounded-lg text-sm font-medium transition-all @(currentAction == "Customers" ? "bg-brand-600/15 text-brand-400 border border-brand-500/20" : "bg-dark-800 text-dark-400 hover:text-white border border-white/5")">
+        @(isArabic ? "العملاء" : "Customers")
+    </a>
+</div>

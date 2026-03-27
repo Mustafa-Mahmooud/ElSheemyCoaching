@@ -1,0 +1,45 @@
+@model ElSheemyCoaching.Core.Entities.Order
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "تم إرسال الطلب";
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var isArabic = requestCulture?.RequestCulture.Culture.Name.StartsWith("ar") ?? true;
+}
+
+<section class="max-w-lg mx-auto px-4 py-16">
+    <div class="bg-dark-900/50 border border-white/5 rounded-2xl p-8 text-center">
+        <!-- Success Icon -->
+        <div class="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+
+        <h1 class="text-2xl font-extrabold mb-3">
+            @(isArabic ? "تم إرسال طلبك بنجاح! 🎉" : "Order Submitted Successfully! 🎉")
+        </h1>
+
+        <p class="text-dark-400 mb-6">
+            @(isArabic
+                ? "تم استلام إثبات الدفع الخاص بك وسيتم مراجعته قريباً. ستصلك رسالة على بريدك الإلكتروني بمجرد التأكيد."
+                : "Your payment proof has been received and will be reviewed shortly. You'll receive an email once confirmed.")
+        </p>
+
+        <div class="bg-dark-800/50 rounded-xl p-4 mb-6 border border-white/5">
+            <div class="flex justify-between items-center">
+                <span class="text-dark-400 text-sm">@(isArabic ? "رقم الطلب" : "Order Number")</span>
+                <span class="font-mono font-bold text-brand-400">@Model.OrderNumber</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 justify-center text-dark-400 text-sm mb-8">
+            <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
+            @(isArabic ? "في انتظار المراجعة" : "Awaiting Verification")
+        </div>
+
+        <a href="@Url.Action("Index", "Programs")"
+           class="inline-block px-6 py-3 rounded-xl bg-dark-800 hover:bg-dark-700 text-white font-medium transition-all">
+            @(isArabic ? "تصفح المزيد من البرامج" : "Browse More Programs")
+        </a>
+    </div>
+</section>

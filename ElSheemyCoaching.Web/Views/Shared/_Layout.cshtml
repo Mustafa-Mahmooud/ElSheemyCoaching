@@ -1,0 +1,316 @@
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ElSheemyCoaching.Core.Entities.ApplicationUser> SignInManager
+@inject UserManager<ElSheemyCoaching.Core.Entities.ApplicationUser> UserManager
+@inject ElSheemyCoaching.Data.ApplicationDbContext DbContext
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? "ar-EG";
+    var isArabic = culture.StartsWith("ar");
+    var dir = isArabic ? "rtl" : "ltr";
+    var lang = isArabic ? "ar" : "en";
+}
+<!DOCTYPE html>
+<html lang="@lang" dir="@dir">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ElSheemy Coaching</title>
+
+    <!-- Google Fonts: Cairo (Arabic) + Inter (English) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind CSS CDN (v3) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fdf4f3',
+                            100: '#fce8e6',
+                            200: '#f9d4d1',
+                            300: '#f3b0aa',
+                            400: '#ea827a',
+                            500: '#dc5a50',
+                            600: '#c93d33',
+                            700: '#a93028',
+                            800: '#8c2b24',
+                            900: '#752924',
+                            950: '#40120e',
+                        },
+                        dark: {
+                            50: '#f6f6f6',
+                            100: '#e7e7e7',
+                            200: '#d1d1d1',
+                            300: '#b0b0b0',
+                            400: '#888888',
+                            500: '#6d6d6d',
+                            600: '#5d5d5d',
+                            700: '#4f4f4f',
+                            800: '#454545',
+                            900: '#1a1a2e',
+                            950: '#0f0f1a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        body {
+            font-family: '@(isArabic ? "Cairo" : "Inter")', sans-serif;
+        }
+        [dir="rtl"] body {
+            font-family: 'Cairo', sans-serif;
+        }
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-dark-950 text-white min-h-screen flex flex-col">
+
+    <!-- ═══════════ NAVBAR ═══════════ -->
+    <nav class="bg-dark-900/80 backdrop-blur-md border-b border-white/5 sticky top-0 z-50" x-data="{ mobileOpen: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+
+                <!-- Logo -->
+                <a href="/" class="flex items-center gap-2">
+                    <span class="text-2xl font-bold bg-gradient-to-r from-brand-500 to-brand-400 bg-clip-text text-transparent">
+                        ElShemy
+                    </span>
+                    <span class="text-sm text-dark-400 hidden sm:inline">Coaching</span>
+                </a>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="@Url.Action("Index", "Programs")" class="text-dark-300 hover:text-white transition-colors">
+                        @(isArabic ? "البرامج" : "Programs")
+                    </a>
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        var userId = UserManager.GetUserId(User);
+                        var unreadCount = DbContext.InAppNotifications.Count(n => n.UserId == userId && !n.IsRead);
+
+                        @if (User.IsInRole("Admin") || User.IsInRole("Coach"))
+                        {
+                            <a href="@Url.Action("Orders", "Admin")" class="text-dark-300 hover:text-white transition-colors">
+                                @(isArabic ? "الطلبات" : "Orders")
+                            </a>
+                        }
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a href="@Url.Action("Index", "Admin")" class="px-3 py-1.5 rounded-lg bg-brand-600/20 text-brand-400 hover:bg-brand-600/30 font-medium text-sm transition-all border border-brand-500/30 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                                @(isArabic ? "التحليلات" : "Analysis")
+                            </a>
+                        }
+
+                        <a href="@Url.Action("MyPrograms", "Client")" class="text-dark-300 hover:text-white transition-colors">
+                            @(isArabic ? "برامجي" : "My Programs")
+                        </a>
+                        <a href="@Url.Action("Progress", "Client")" class="text-dark-300 hover:text-white transition-colors">
+                            @(isArabic ? "تقدمي" : "Progress")
+                        </a>
+                        <a href="@Url.Action("Calculator", "Client")" class="text-dark-300 hover:text-white transition-colors">
+                            @(isArabic ? "حاسبة السعرات" : "Calculator")
+                        </a>
+
+                        <a href="@Url.Action("Index", "Notifications")" class="relative text-dark-300 hover:text-white transition-colors flex items-center justify-center" title="@(isArabic ? "الإشعارات" : "Notifications")">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                            @if(unreadCount > 0) {
+                                <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-500 text-[10px] font-bold text-white border-2 border-dark-900 shadow">@unreadCount</span>
+                            }
+                        </a>
+
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm text-dark-400">@UserManager.GetUserName(User)</span>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="px-4 py-1.5 rounded-lg text-sm bg-dark-800 hover:bg-dark-700 text-dark-300 hover:text-white transition-all">
+                                    @(isArabic ? "خروج" : "Logout")
+                                </button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Login", "Account")" class="text-dark-300 hover:text-white transition-colors">
+                            @(isArabic ? "دخول" : "Login")
+                        </a>
+                        <a href="@Url.Action("Register", "Account")" class="px-4 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium transition-all">
+                            @(isArabic ? "إنشاء حساب" : "Register")
+                        </a>
+                    }
+
+                    <!-- Language Switcher -->
+                    <form asp-controller="Language" asp-action="Set" method="post" class="inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                        @if (isArabic)
+                        {
+                            <input type="hidden" name="culture" value="en-US" />
+                            <button type="submit" class="px-3 py-1 rounded-md text-xs bg-dark-800 hover:bg-dark-700 text-dark-400 hover:text-white transition-all border border-white/5">
+                                EN
+                            </button>
+                        }
+                        else
+                        {
+                            <input type="hidden" name="culture" value="ar-EG" />
+                            <button type="submit" class="px-3 py-1 rounded-md text-xs bg-dark-800 hover:bg-dark-700 text-dark-400 hover:text-white transition-all border border-white/5">
+                                عربي
+                            </button>
+                        }
+                    </form>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button @@click="mobileOpen = !mobileOpen" class="md:hidden text-dark-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path x-show="mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Nav -->
+            <div x-show="mobileOpen" x-transition class="md:hidden pb-4 space-y-2">
+                <a href="@Url.Action("Index", "Programs")" class="block py-2 text-dark-300 hover:text-white">
+                    @(isArabic ? "البرامج" : "Programs")
+                </a>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    var userId = UserManager.GetUserId(User);
+                    var unreadCount = DbContext.InAppNotifications.Count(n => n.UserId == userId && !n.IsRead);
+
+                    @if (User.IsInRole("Admin") || User.IsInRole("Coach"))
+                    {
+                        <a href="@Url.Action("Orders", "Admin")" class="block py-2 text-dark-300 hover:text-white">
+                            @(isArabic ? "الطلبات" : "Orders")
+                        </a>
+                    }
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a href="@Url.Action("Index", "Admin")" class="block py-2 text-brand-400 font-bold">
+                            @(isArabic ? "التحليلات" : "Analysis")
+                        </a>
+                    }
+
+                    <a href="@Url.Action("MyPrograms", "Client")" class="block py-2 text-dark-300 hover:text-white">
+                        @(isArabic ? "برامجي" : "My Programs")
+                    </a>
+                    <a href="@Url.Action("Progress", "Client")" class="block py-2 text-dark-300 hover:text-white">
+                        @(isArabic ? "تقدمي" : "Progress")
+                    </a>
+                    <a href="@Url.Action("Calculator", "Client")" class="block py-2 text-dark-300 hover:text-white">
+                        @(isArabic ? "حاسبة السعرات" : "Calculator")
+                    </a>
+
+                    <a href="@Url.Action("Index", "Notifications")" class="block py-2 text-dark-300 hover:text-white flex items-center justify-between">
+                        @(isArabic ? "الإشعارات" : "Notifications")
+                        @if(unreadCount > 0) {
+                            <span class="bg-brand-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">@unreadCount</span>
+                        }
+                    </a>
+
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="block w-full text-start py-2 text-dark-300 hover:text-white">
+                            @(isArabic ? "خروج" : "Logout")
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a href="@Url.Action("Login", "Account")" class="block py-2 text-dark-300 hover:text-white">
+                        @(isArabic ? "دخول" : "Login")
+                    </a>
+                    <a href="@Url.Action("Register", "Account")" class="block py-2 text-brand-400 hover:text-brand-300">
+                        @(isArabic ? "إنشاء حساب" : "Register")
+                    </a>
+                }
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════ ALERTS ═══════════ -->
+    @if (TempData["Success"] is string successMsg)
+    {
+        <div class="max-w-7xl mx-auto px-4 mt-4" x-data="{ show: true }" x-show="show" x-transition>
+            <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg flex items-center justify-between">
+                <span>@successMsg</span>
+                <button @@click="show = false" class="text-emerald-400 hover:text-emerald-300">&times;</button>
+            </div>
+        </div>
+    }
+
+    @if (TempData["Error"] is string errorMsg)
+    {
+        <div class="max-w-7xl mx-auto px-4 mt-4" x-data="{ show: true }" x-show="show" x-transition>
+            <div class="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg flex items-center justify-between">
+                <span>@errorMsg</span>
+                <button @@click="show = false" class="text-red-400 hover:text-red-300">&times;</button>
+            </div>
+        </div>
+    }
+
+    <!-- ═══════════ MAIN CONTENT ═══════════ -->
+    <main class="flex-1">
+        @RenderBody()
+    </main>
+
+    <!-- ═══════════ FLOATING SOCIAL BUTTONS ═══════════ -->
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 items-end">
+        <!-- Instagram Button -->
+        <a href="https://www.instagram.com/m.elshemy10?igsh=MWtqZ3F4d2EzaWwzYw%3D%3D&utm_source=qr" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 group relative overflow-hidden"
+           title="@(isArabic ? "تابعنا على انستجرام" : "Follow us on Instagram")">
+            <svg class="w-6 h-6 relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.405a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
+            </svg>
+            <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+        </a>
+        
+        <!-- WhatsApp Button -->
+        <a href="https://wa.me/201157066674" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 group relative overflow-hidden"
+           title="@(isArabic ? "تواصل معنا على واتساب" : "Contact us on WhatsApp")">
+            <svg class="w-6 h-6 relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+            <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+        </a>
+    </div>
+
+    <!-- ═══════════ FOOTER ═══════════ -->
+    <footer class="bg-dark-900/50 border-t border-white/5 mt-16">
+        <div class="max-w-7xl mx-auto px-4 py-8 text-center">
+            <p class="text-dark-500 text-sm">
+                &copy; @DateTime.Now.Year ElSheemy Coaching.
+                @(isArabic ? "جميع الحقوق محفوظة." : "All rights reserved.")
+            </p>
+        </div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

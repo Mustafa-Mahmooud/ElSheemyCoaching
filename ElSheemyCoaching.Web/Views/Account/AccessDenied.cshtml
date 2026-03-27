@@ -1,0 +1,17 @@
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "غير مصرح";
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var isArabic = requestCulture?.RequestCulture.Culture.Name.StartsWith("ar") ?? true;
+}
+
+<section class="min-h-[60vh] flex items-center justify-center text-center px-4">
+    <div>
+        <div class="text-6xl mb-6">🔒</div>
+        <h1 class="text-3xl font-extrabold mb-4">@(isArabic ? "غير مصرح" : "Access Denied")</h1>
+        <p class="text-dark-400 mb-8">@(isArabic ? "ليس لديك صلاحية للوصول لهذه الصفحة." : "You do not have permission to access this page.")</p>
+        <a href="/" class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold transition-all">
+            @(isArabic ? "العودة للرئيسية" : "Back to Home")
+        </a>
+    </div>
+</section>

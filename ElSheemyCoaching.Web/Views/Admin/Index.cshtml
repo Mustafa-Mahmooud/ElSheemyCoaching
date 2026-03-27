@@ -1,0 +1,153 @@
+@model IEnumerable<ElSheemyCoaching.Core.Entities.Order>
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "لوحة التحكم";
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var isArabic = requestCulture?.RequestCulture.Culture.Name.StartsWith("ar") ?? true;
+
+    decimal totalRevenue = ViewBag.TotalRevenue ?? 0;
+    int totalUsers = ViewBag.TotalUsers ?? 0;
+    int totalOrders = ViewBag.TotalOrders ?? 0;
+    int pendingApprovals = ViewBag.PendingApprovals ?? 0;
+}
+
+<div class="px-4 py-8 max-w-7xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl font-extrabold text-white mb-2">@(isArabic ? "نظرة عامة" : "Overview")</h1>
+        <p class="text-dark-400">@(isArabic ? "ملخص لأداء المنصة والمبيعات" : "Summary of platform performance and sales")</p>
+    </div>
+
+    @await Html.PartialAsync("_AdminNav")
+
+    <!-- STATS CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <!-- Revenue -->
+        <div class="bg-dark-900/50 border border-white/5 p-6 rounded-2xl flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full bg-brand-600/20 text-brand-500 flex items-center justify-center">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <div>
+                <p class="text-dark-400 text-sm font-medium">@(isArabic ? "إجمالي الإيرادات" : "Total Revenue")</p>
+                <h3 class="text-2xl font-bold text-white">@totalRevenue.ToString("N0") <span class="text-sm text-dark-400">LE</span></h3>
+            </div>
+        </div>
+
+        <!-- Users -->
+        <div class="bg-dark-900/50 border border-white/5 p-6 rounded-2xl flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+            </div>
+            <div>
+                <p class="text-dark-400 text-sm font-medium">@(isArabic ? "العملاء" : "Total Customers")</p>
+                <h3 class="text-2xl font-bold text-white">@totalUsers</h3>
+            </div>
+        </div>
+
+        <!-- Orders -->
+        <div class="bg-dark-900/50 border border-white/5 p-6 rounded-2xl flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+            </div>
+            <div>
+                <p class="text-dark-400 text-sm font-medium">@(isArabic ? "في انتظار التأكيد" : "Pending Approvals")</p>
+                <h3 class="text-2xl font-bold text-white">@pendingApprovals</h3>
+            </div>
+        </div>
+
+        <!-- Total Orders -->
+        <div class="bg-dark-900/50 border border-white/5 p-6 rounded-2xl flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full bg-purple-500/20 text-purple-500 flex items-center justify-center">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+            </div>
+            <div>
+                <p class="text-dark-400 text-sm font-medium">@(isArabic ? "إجمالي الطلبات" : "Total Orders")</p>
+                <h3 class="text-2xl font-bold text-white">@totalOrders</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECENT PENDING APPROVALS -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
+        <div class="bg-dark-900/50 border border-white/5 rounded-2xl overflow-hidden shadow-xl">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-white">@(isArabic ? "طلبات حديثة" : "Recent Orders")</h2>
+                <a href="@Url.Action("Orders", "Admin")" class="text-brand-500 hover:text-brand-400 text-sm font-medium transition-colors">
+                    @(isArabic ? "عرض الكل" : "View All")
+                </a>
+            </div>
+            
+            @if (!Model.Any())
+            {
+                <div class="p-8 text-center text-dark-400">
+                    @(isArabic ? "لا توجد طلبات معلقة حالياً." : "No pending orders right now.")
+                </div>
+            }
+            else
+            {
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left rtl:text-right border-collapse text-sm">
+                        <thead class="bg-dark-800/80 border-b border-white/5">
+                            <tr>
+                                <th class="px-6 py-4 font-semibold text-dark-300">@(isArabic ? "رقم الطلب" : "Order #")</th>
+                                <th class="px-6 py-4 font-semibold text-dark-300">@(isArabic ? "العميل" : "Customer")</th>
+                                <th class="px-6 py-4 font-semibold text-dark-300">@(isArabic ? "المبلغ" : "Total")</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            @foreach (var order in Model)
+                            {
+                                <tr class="hover:bg-dark-800/50 transition-colors">
+                                    <td class="px-6 py-4 font-bold text-white">@order.OrderNumber</td>
+                                    <td class="px-6 py-4 text-dark-300">@order.User.FullName</td>
+                                    <td class="px-6 py-4 font-bold text-brand-400">@order.Total.ToString("N0") LE</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- REVENUE BY PROGRAM -->
+        <div class="bg-dark-900/50 border border-white/5 rounded-2xl overflow-hidden shadow-xl">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-white">@(isArabic ? "تحليل الإيرادات حسب البرنامج" : "Revenue by Program")</h2>
+            </div>
+            
+            @{
+                var programRevenue = ViewBag.ProgramRevenue as List<ElSheemyCoaching.Core.DTOs.AdminProgramRevenueViewModel> ?? new();
+            }
+
+            @if (!programRevenue.Any())
+            {
+                <div class="p-8 text-center text-dark-400">
+                    @(isArabic ? "لا توجد مبيعات بعد." : "No sales data yet.")
+                </div>
+            }
+            else
+            {
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left rtl:text-right border-collapse text-sm">
+                        <thead class="bg-dark-800/80 border-b border-white/5">
+                            <tr>
+                                <th class="px-6 py-4 font-semibold text-dark-300">@(isArabic ? "البرنامج" : "Program")</th>
+                                <th class="px-6 py-4 font-semibold text-dark-300">@(isArabic ? "المبيعات" : "Sales")</th>
+                                <th class="px-6 py-4 font-semibold text-dark-300">@(isArabic ? "الإيرادات" : "Revenue")</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            @foreach (var item in programRevenue)
+                            {
+                                <tr class="hover:bg-dark-800/50 transition-colors">
+                                    <td class="px-6 py-4 font-medium text-white">@(isArabic ? item.TitleAr : item.TitleEn)</td>
+                                    <td class="px-6 py-4 text-dark-300">@item.Purchases</td>
+                                    <td class="px-6 py-4 font-bold text-emerald-400">@item.Revenue.ToString("N0") LE</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

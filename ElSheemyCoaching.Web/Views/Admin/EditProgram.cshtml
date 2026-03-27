@@ -1,0 +1,33 @@
+@model ElSheemyCoaching.Core.DTOs.ProgramFormViewModel
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "تعديل برنامج";
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var isArabic = requestCulture?.RequestCulture.Culture.Name.StartsWith("ar") ?? true;
+}
+
+<section class="max-w-3xl mx-auto px-4 py-10">
+    <div class="mb-8">
+        <a href="@Url.Action("Programs", "Admin")" class="text-dark-400 hover:text-white text-sm flex items-center gap-1 mb-4 transition-colors">
+            <svg class="w-4 h-4 @(isArabic ? "rotate-180" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            @(isArabic ? "العودة للبرامج" : "Back to Programs")
+        </a>
+        <h1 class="text-2xl font-extrabold">@(isArabic ? "تعديل البرنامج" : "Edit Program")</h1>
+    </div>
+
+    <form asp-controller="Admin" asp-action="EditProgram" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data"
+          class="space-y-6" x-data="{ coverPreview: '@(Model.ExistingCoverImageUrl ?? "")', pdfName: '@(Model.ExistingPdfFileName ?? "")' }">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3"></div>
+
+        @await Html.PartialAsync("_ProgramFormFields", Model)
+
+        <button type="submit"
+                class="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-semibold transition-all text-lg">
+            @(isArabic ? "حفظ التعديلات" : "Save Changes")
+        </button>
+    </form>
+</section>
