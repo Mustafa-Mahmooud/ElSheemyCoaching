@@ -1,0 +1,161 @@
+{
+  "categories": [
+    {
+      "id": "protein",
+      "name": "Protein",
+      "items": [
+        {
+          "id": "chicken_breast",
+          "name": "Chicken Breast",
+          "aliases": [ "chicken", "صدر دجاج" ],
+          "referenceAmount": 100,
+          "unit": "g",
+          "macros": {
+            "protein": 31,
+            "carbs": 0,
+            "fats": 3.6,
+            "calories": 165
+          }
+        },
+
+        {
+          "id": "beef",
+          "name": "Beef",
+          "aliases": [ "لحم بقري" ],
+          "referenceAmount": 150,
+          "unit": "g"
+        },
+
+        {
+          "id": "egg",
+          "name": "Egg",
+          "aliases": [ "egg", "بيض" ],
+          "referenceAmount": 100,
+          "unit": "g",
+          "macros": {
+            "protein": 13,
+            "carbs": 1.1,
+            "fats": 11,
+            "calories": 155
+          }
+        },
+        
+        {
+          "id": "chicken_thigh",
+          "name": "Chicken Thigh",
+          "aliases": ["اوراك دجاج"],
+          "referenceAmount": 150,
+          "unit": "g"
+        },
+        {
+          "id": "tilapia",
+          "name": "Tilapia",
+          "aliases": ["سمك بلطي"],
+          "referenceAmount": 200,
+          "unit": "g"
+        },
+        {
+          "id": "shrimp",
+          "name": "Shrimp",
+          "aliases": ["جمبري"],
+          "referenceAmount": 180,
+          "unit": "g"
+        },
+        {
+          "id": "tuna",
+          "name": "Tuna",
+          "aliases": ["تونة"],
+          "referenceAmount": 180,
+          "unit": "g"
+        },
+        {
+          "id": "salmon",
+          "name": "Salmon",
+          "aliases": ["سلمون"],
+          "referenceAmount": 150,
+          "unit": "g"
+        },
+        {
+          "id": "cottage_cheese",
+          "name": "Cottage Cheese",
+          "aliases": ["جبنة قريش"],
+          "referenceAmount": 300,
+          "unit": "g"
+        },
+        {
+          "id": "fava_beans",
+          "name": "Fava Beans",
+          "aliases": ["فول"],
+          "referenceAmount": 300,
+          "unit": "g"
+        },
+        {
+          "id": "protein_powder",
+          "name": "Protein Powder",
+          "aliases": ["سكوب بروتين"],
+          "referenceAmount": 1,
+          "unit": "scoop"
+        }
+      ]
+    },
+    {
+      "id": "carbs",
+      "name": "Carbohydrates",
+      "items": [
+        { "id": "rice", "name": "Rice", "aliases": ["ارز"], "referenceAmount": 150, "unit": "g" },
+        { "id": "oats", "name": "Oats", "aliases": ["شوفان"], "referenceAmount": 75, "unit": "g" },
+        { "id": "potatoes", "name": "Potatoes", "aliases": ["بطاطس"], "referenceAmount": 220, "unit": "g" },
+        { "id": "brown_bread", "name": "Brown Bread", "aliases": ["توست اسمر"], "referenceAmount": 100, "unit": "g" },
+        { "id": "sweet_potato", "name": "Sweet Potato", "aliases": ["بطاطا"], "referenceAmount": 200, "unit": "g" },
+        { "id": "pasta", "name": "Pasta", "aliases": ["مكرونة"], "referenceAmount": 160, "unit": "g" },
+        { "id": "corn", "name": "Corn", "aliases": ["ذرة"], "referenceAmount": 140, "unit": "g" },
+        { "id": "baladi_bread", "name": "Baladi Bread", "aliases": ["خبز بلدي"], "referenceAmount": 90, "unit": "g" },
+        { "id": "tortilla", "name": "Tortilla", "aliases": ["تورتيلا"], "referenceAmount": 90, "unit": "g" },
+        { "id": "beans", "name": "Beans", "aliases": ["فاصوليا"], "referenceAmount": 250, "unit": "g" },
+        { "id": "peas", "name": "Peas", "aliases": ["بسلة"], "referenceAmount": 250, "unit": "g" }
+      ]
+    },
+    {
+      "id": "fats",
+      "name": "Fats",
+      "items": [
+        { "id": "almonds", "name": "Almonds", "aliases": ["لوز"], "referenceAmount": 20, "unit": "g" },
+        { "id": "cashews", "name": "Cashews", "aliases": ["كاجو"], "referenceAmount": 20, "unit": "g" },
+        { "id": "hazelnuts", "name": "Hazelnuts", "aliases": ["بندق"], "referenceAmount": 20, "unit": "g" },
+        { "id": "peanuts", "name": "Peanuts", "aliases": ["فول سوداني"], "referenceAmount": 20, "unit": "g" },
+        { "id": "pistachio", "name": "Pistachio", "aliases": ["فستق"], "referenceAmount": 20, "unit": "g" },
+        { "id": "olive_oil", "name": "Olive Oil", "aliases": ["زيت زيتون"], "referenceAmount": 3, "unit": "tbsp" },
+        { "id": "avocado", "name": "Avocado", "aliases": ["افوكادو"], "referenceAmount": 60, "unit": "g" },
+        { "id": "walnuts", "name": "Walnuts", "aliases": ["عين جمل"], "referenceAmount": 20, "unit": "g" },
+        { "id": "ghee", "name": "Ghee", "aliases": ["سمن بلدي"], "referenceAmount": 3, "unit": "tbsp" },
+        { "id": "peanut_butter", "name": "Peanut Butter", "aliases": ["زبدة فول"], "referenceAmount": 24, "unit": "g" }
+      ]
+    },
+    {
+      "id": "fruits",
+      "name": "Fruits",
+      "items": [
+        { "id": "apple", "name": "Apple", "aliases": ["تفاح"], "referenceAmount": 100, "unit": "g" },
+        { "id": "banana", "name": "Banana", "aliases": ["موز"], "referenceAmount": 60, "unit": "g" },
+        { "id": "orange", "name": "Orange", "aliases": ["برتقال"], "referenceAmount": 100, "unit": "g" },
+        { "id": "mango", "name": "Mango", "aliases": ["مانجا"], "referenceAmount": 100, "unit": "g" },
+        { "id": "grapes", "name": "Grapes", "aliases": ["عنب"], "referenceAmount": 80, "unit": "g" },
+        { "id": "strawberry", "name": "Strawberry", "aliases": ["فراولة"], "referenceAmount": 200, "unit": "g" },
+        { "id": "guava", "name": "Guava", "aliases": ["جوافة"], "referenceAmount": 100, "unit": "g" },
+        { "id": "dates", "name": "Dates", "aliases": ["بلح"], "referenceAmount": 20, "unit": "g" }
+      ]
+    },
+    {
+      "id": "vegetables",
+      "name": "Vegetables",
+      "items": [
+        { "id": "tomato", "name": "Tomato", "aliases": ["طماطم"], "referenceAmount": 100, "unit": "g" },
+        { "id": "cucumber", "name": "Cucumber", "aliases": ["خيار"], "referenceAmount": 100, "unit": "g" },
+        { "id": "carrot", "name": "Carrot", "aliases": ["جزر"], "referenceAmount": 50, "unit": "g" },
+        { "id": "zucchini", "name": "Zucchini", "aliases": ["كوسة"], "referenceAmount": 50, "unit": "g" },
+        { "id": "eggplant", "name": "Eggplant", "aliases": ["باذنجان"], "referenceAmount": 150, "unit": "g" },
+        { "id": "molokhia", "name": "Molokhia", "aliases": ["ملوخية"], "referenceAmount": 50, "unit": "g" }
+      ]
+    }
+  ]
+}

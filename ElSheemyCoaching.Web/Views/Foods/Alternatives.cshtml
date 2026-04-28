@@ -1,0 +1,231 @@
+@{
+    ViewData["Title"] = "Food Alternatives";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+}
+
+<div class="max-w-5xl mx-auto px-4 py-12" x-data="foodAlternatives()">
+    <!-- Header -->
+    <div class="relative overflow-hidden bg-brand-600 rounded-t-2xl py-8 px-6 shadow-2xl border-b border-white/10">
+        <div class="relative z-10 text-center">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">
+                @(isArabic ? "بدائل الأطعمة الذكية" : "Smart Food Alternatives")
+            </h1>
+            <p class="text-brand-100 text-sm md:text-base max-w-lg mx-auto opacity-90">
+                @(isArabic ? "أدخل طعامك وكميتك، وسنجد لك البدائل المناسبة بنفس القيمة الغذائية." : "Enter your food and quantity, and we'll find suitable alternatives with the same nutritional value.")
+            </p>
+        </div>
+        <!-- Decorative Background Element -->
+        <div class="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-black/10 rounded-full blur-2xl"></div>
+    </div>
+
+    <!-- Main Search Component -->
+    <div class="bg-dark-900 rounded-b-2xl shadow-2xl border border-white/5 overflow-hidden">
+        <div class="p-6 md:p-10">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                
+                <!-- Search Inputs Section -->
+                <div class="lg:col-span-1 space-y-6 bg-dark-800/40 p-6 rounded-2xl border border-white/5">
+                    <h3 class="text-lg font-bold text-white border-b border-white/5 pb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        @(isArabic ? "ابحث عن طعام" : "Find Your Food")
+                    </h3>
+
+                    <div class="space-y-4">
+                        <!-- Food Name with Autocomplete -->
+                        <div class="relative" x-data="{ 
+                            isOpen: false, 
+                            allFoods: [],
+                            filteredFoods: [],
+                            async init() {
+                                const resp = await fetch('/api/foods/list');
+                                this.allFoods = await resp.json();
+                            },
+                            get matches() {
+                                if (this.searchQuery === '') return [];
+                                return this.allFoods.filter(f => 
+                                    f.toLowerCase().includes(this.searchQuery.toLowerCase())
+                                ).slice(0, 8);
+                            },
+                            selectFood(name) {
+                                this.searchQuery = name;
+                                this.isOpen = false;
+                                this.findAlternatives();
+                            }
+                        }" @@click.away="isOpen = false">
+                            <label class="block text-xs font-bold text-dark-400 uppercase tracking-widest mb-2">
+                                @(isArabic ? "اسم الطعام" : "FOOD NAME")
+                            </label>
+                            
+                            <div class="relative">
+                                <input type="text" x-model="searchQuery" 
+                                       @@input="isOpen = true"
+                                       @@focus="isOpen = true"
+                                       @@keydown.escape="isOpen = false"
+                                       @@keydown.enter="if(matches.length > 0 && isOpen) { selectFood(matches[0]); $event.preventDefault(); } else { findAlternatives(); }"
+                                       class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-dark-600 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all outline-none"
+                                       placeholder="@(isArabic ? "أو اختر من القائمة..." : "or select from list...")">
+                                
+                                <!-- Suggestions Dropdown -->
+                                <div x-show="isOpen && matches.length > 0" 
+                                     x-transition:enter="transition ease-out duration-100"
+                                     x-transition:enter-start="opacity-0 scale-95"
+                                     x-transition:enter-end="opacity-100 scale-100"
+                                     class="absolute z-50 w-full mt-2 bg-dark-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto backdrop-blur-xl">
+                                    <template x-for="match in matches" :key="match">
+                                        <button @@click="selectFood(match)"
+                                                class="w-full text-start px-4 py-3 text-sm text-dark-200 hover:bg-brand-600 hover:text-white transition-colors border-b border-white/5 last:border-0 flex items-center justify-between group">
+                                            <span x-text="match"></span>
+                                            <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div>
+                            <label class="block text-xs font-bold text-dark-400 uppercase tracking-widest mb-2">
+                                @(isArabic ? "الكمية (بالجرام أو الوحدة)" : "QUANTITY (g or unit)")
+                            </label>
+                            <div class="relative">
+                                <input type="number" x-model.number="quantity" @@keyup.enter="findAlternatives"
+                                       class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all outline-none"
+                                       placeholder="100">
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-dark-500">g/u</span>
+                            </div>
+                        </div>
+
+                        <button @@click="findAlternatives" 
+                                :disabled="isLoading || !searchQuery || !quantity"
+                                class="w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-600/20 transform active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <span x-show="!isLoading">@(isArabic ? "احسب البدائل" : "Find Alternatives")</span>
+                            <template x-if="isLoading">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </template>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="lg:col-span-2 min-h-[400px] flex flex-col">
+                    
+                    <!-- Empty State / No Selection -->
+                    <template x-if="!results.length && !isLoading && !hasSearched">
+                        <div class="flex-1 flex flex-col items-center justify-center text-center p-12 space-y-4 border-2 border-dashed border-white/5 rounded-2xl">
+                            <div class="bg-dark-800 p-6 rounded-full">
+                                <svg class="w-16 h-16 text-dark-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold text-dark-300">@(isArabic ? "بانتظار بحثك..." : "Waiting for your search...")</h4>
+                                <p class="text-dark-500 text-sm">@(isArabic ? "اختر نوع الطعام والكمية لرؤية البدائل المتاحة." : "Choose a food type and quantity to see available alternatives.")</p>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Not Found State -->
+                    <template x-if="!results.length && !isLoading && hasSearched">
+                        <div class="flex-1 flex flex-col items-center justify-center text-center p-12 space-y-4 border-2 border-dashed border-red-500/10 rounded-2xl">
+                            <div class="bg-red-500/10 p-6 rounded-full">
+                                <svg class="w-16 h-16 text-red-500/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold text-white">@(isArabic ? "عذراً، لم نجد هذا الطعام" : "Sorry, we couldn't find this food")</h4>
+                                <p class="text-dark-400 text-sm mt-2">@(isArabic ? "تأكد من كتابة الاسم بشكل صحيح أو جرب طعاماً آخر." : "Make sure the name is spelled correctly or try another food.")</p>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Results List -->
+                    <div x-show="results.length > 0" x-transition class="space-y-6">
+                        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                            <h3 class="text-xl font-black text-white uppercase tracking-wider">
+                                @(isArabic ? "البدائل المتاحة لـ" : "Alternatives for") 
+                                <span class="text-brand-400" x-text="quantity + 'g ' + lastSearchedName"></span>
+                            </h3>
+                            <span class="px-3 py-1 bg-brand-600/20 text-brand-400 rounded-full text-xs font-bold uppercase" x-text="results[0]?.category"></span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <template x-for="item in results" :key="item.foodName">
+                                <div class="group relative bg-dark-800/50 hover:bg-dark-800 border border-white/5 hover:border-brand-500/30 p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-white font-bold text-lg group-hover:text-brand-400 transition-colors" x-text="item.foodName"></h4>
+                                            <p class="text-xs text-dark-500 font-medium uppercase tracking-widest mt-1">@(isArabic ? "حصمة مكافئة" : "EQUIVALENT PORTION")</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-2xl font-black text-white"><span x-text="item.adjustedQuantity"></span> <span class="text-sm font-normal text-dark-500" x-text="item.unit"></span></div>
+                                        </div>
+                                    </div>
+                                    <!-- Subtle background indicator -->
+                                    <div class="absolute bottom-0 left-0 w-0 h-1 bg-brand-500 group-hover:w-full transition-all duration-500"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-dark-900/40 p-6 rounded-2xl border border-white/5 flex gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-1">@(isArabic ? "لماذا نستخدم البدائل؟" : "Why use alternatives?")</h4>
+                <p class="text-sm text-dark-400">@(isArabic ? "تنوع مصادر الطعام يساعدك على الاستمرار في نظامك الغذائي دون ملل، مع الحفاظ على نفس توازن السعرات والماكروز." : "Diversifying food sources helps you stick to your diet without boredom, while maintaining the same balance of calories and macros.")</p>
+            </div>
+        </div>
+        <div class="bg-dark-900/40 p-6 rounded-2xl border border-white/5 flex gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-1">@(isArabic ? "ملاحظة هامة" : "Important Note")</h4>
+                <p class="text-sm text-dark-400">@(isArabic ? "القيم تقريبية وقد تختلف قليلاً بناءً على طريقة الطهي أو الماركة المستخدمة. يفضل دائماً الرجوع للمدرب." : "Values are approximate and may vary slightly based on cooking method or brand. It's always best to consult your coach.")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function foodAlternatives() {
+    return {
+        searchQuery: '',
+        quantity: 100,
+        results: [],
+        isLoading: false,
+        hasSearched: false,
+        lastSearchedName: '',
+        
+        async findAlternatives() {
+            if (!this.searchQuery || !this.quantity) return;
+            
+            this.isLoading = true;
+            this.hasSearched = true;
+            this.lastSearchedName = this.searchQuery;
+            this.results = [];
+            
+            try {
+                const response = await fetch(`/api/foods/alternatives?name=${encodeURIComponent(this.searchQuery)}&grams=${this.quantity}`);
+                if (response.ok) {
+                    this.results = await response.json();
+                } else {
+                    console.error('Failed to fetch alternatives');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                this.isLoading = false;
+            }
+        }
+    }
+}
+</script>

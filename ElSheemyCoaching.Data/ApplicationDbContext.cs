@@ -59,6 +59,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .WithMany(p => p.Variants)
              .HasForeignKey(v => v.ProgramId)
              .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasQueryFilter(v => !v.Program.IsDeleted);
         });
 
         // ───────────────── Order ─────────────────
@@ -93,6 +95,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .WithMany(p => p.OrderItems)
              .HasForeignKey(i => i.ProgramId)
              .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasQueryFilter(i => !i.Program.IsDeleted);
 
             e.HasOne(i => i.ProgramVariant)
              .WithMany(v => v.OrderItems)
@@ -140,6 +144,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .WithMany()
              .HasForeignKey(d => d.ProgramId)
              .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasQueryFilter(d => !d.Program.IsDeleted);
 
             e.HasOne(d => d.User)
              .WithMany()

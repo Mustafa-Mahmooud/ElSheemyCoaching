@@ -53,6 +53,7 @@ builder.Services.AddControllersWithViews()
 // ═══════════ SERVICES ═══════════
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<IFoodAlternativeService, FoodAlternativeService>();
 
 builder.Services.AddHostedService<AbandonedOrderCleanupService>();
 

@@ -27,14 +27,27 @@
 
         <!-- Details -->
         <div>
-            @if (Model.IsFeatured)
+            @{
+                var isPrivate = Model.Slug.StartsWith("private-", StringComparison.OrdinalIgnoreCase);
+            }
+
+            @if (isPrivate)
+            {
+                <div class="flex items-center gap-2 mb-4 animate-bounce">
+                    <span class="px-3 py-1 rounded-lg bg-amber-500 text-white text-[10px] font-black tracking-widest uppercase">
+                        PRIVATE VIP TRAINING
+                    </span>
+                    <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+                </div>
+            }
+            else if (Model.IsFeatured)
             {
                 <span class="inline-block px-3 py-1 rounded-full bg-brand-600/15 text-brand-400 text-xs font-semibold mb-4">
                     @(isArabic ? "⭐ برنامج مميز" : "⭐ Featured Program")
                 </span>
             }
 
-            <h1 class="text-3xl sm:text-4xl font-extrabold mb-4">
+            <h1 class="text-3xl sm:text-4xl font-extrabold mb-4 @(isPrivate ? "text-amber-500" : "")">
                 @(isArabic ? Model.TitleAr : Model.TitleEn)
             </h1>
 
@@ -87,8 +100,11 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="programId" value="@Model.Id" />
                 <button type="submit"
-                        class="w-full py-4 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold text-lg transition-all transform hover:scale-[1.02] shadow-lg shadow-brand-600/25">
-                    @(isArabic ? "اشتري الآن" : "Buy Now")
+                        class="w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] shadow-lg
+                        @(isPrivate 
+                            ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white shadow-amber-500/25" 
+                            : "bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white shadow-brand-600/25")">
+                    @(isArabic ? (isPrivate ? "ابدأ التدريب الخاص الآن" : "اشتري الآن") : (isPrivate ? "Start Private Training Now" : "Buy Now"))
                 </button>
             </form>
 

@@ -1,9 +1,8 @@
-using ElSheemyCoaching.Data;
+using ElSheemyCoaching.Core.DTOs;
 using ElSheemyCoaching.Core.Entities;
 using ElSheemyCoaching.Core.Enums;
 using ElSheemyCoaching.Core.Interfaces;
-using ElSheemyCoaching.Core.DTOs;
-using ElSheemyCoaching.Services.Implementations;
+using ElSheemyCoaching.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -82,6 +81,7 @@ public class AdminController : Controller
             .Include(o => o.User)
             .Include(o => o.PaymentProof)
             .Where(o => o.Status == OrderStatus.AwaitingVerification)
+            .Where(o => o.PaymentProof != null)
             .OrderByDescending(o => o.CreatedAt)
             .Take(5)
             .ToListAsync();
@@ -99,15 +99,21 @@ public class AdminController : Controller
     {
         var query = _context.Orders
             .Include(o => o.User)
-            .Include(o => o.PaymentProof).Where(p => p.PaymentProof != null)
+            .Include(o => o.PaymentProof)
             .Include(o => o.Items).ThenInclude(i => i.Program)
             .Include(o => o.Items).ThenInclude(i => i.ProgramVariant)
             .AsQueryable();
 
         if (Enum.TryParse<OrderStatus>(status, out var parsedStatus))
+        {
             query = query.Where(o => o.Status == parsedStatus);
+        }
         else
+        {
             query = query.Where(o => o.Status == OrderStatus.AwaitingVerification);
+            // Default view: only show those that have a proof uploaded
+            query = query.Where(o => o.PaymentProof != null);
+        }
 
         var orders = await query
             .OrderByDescending(o => o.CreatedAt)
@@ -212,7 +218,7 @@ public class AdminController : Controller
                 MessageEn = $"Payment confirmed for program '{programTitleEn}'. You can download it now.",
                 ActionUrl = actionUrl
             };
-            
+
             _context.InAppNotifications.Add(notification);
             await _context.SaveChangesAsync();
 
@@ -221,7 +227,7 @@ public class AdminController : Controller
             // 5. Send Email (Async, non-blocking if possible, but here we wait to ensure logic completion)
             if (proof.Order.User != null && !string.IsNullOrEmpty(proof.Order.User.Email))
             {
-                try 
+                try
                 {
                     await _emailService.SendOrderApprovedEmailAsync(
                         proof.Order.User.Email, proof.Order.User.FullName,
@@ -241,7 +247,7 @@ public class AdminController : Controller
             _logger.LogError(ex, "Error approving payment for proof {Id}", paymentProofId);
             TempData["Error"] = "حدث خطأ أثناء اعتماد الطلب. يرجى التأكد من البيانات والمحاولة مرة أخرى.";
         }
-        
+
         return RedirectToAction(nameof(Orders));
     }
 
@@ -366,6 +372,72 @@ public class AdminController : Controller
         TempData["Success"] = $"تم إضافة البرنامج \"{model.TitleAr}\" بنجاح";
         return RedirectToAction(nameof(Programs));
     }
+
+    // create an api to get all customers in the system, with their total spent and order count, and allow searching by name/email/phone
+
+    [HttpGet("Api/Customers")]
+    public async Task<IActionResult> GetCustomers(string? search)
+    {
+        var clientsInsideRole = await _userManager.GetUsersInRoleAsync("Client");
+        var clientIds = clientsInsideRole.Select(u => u.Id).ToList();
+        var query = _context.Users
+            .Where(u => clientIds.Contains(u.Id))
+            .AsQueryable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var searchLower = search.ToLower();
+            query = query.Where(u =>
+                (u.FullName != null && u.FullName.ToLower().Contains(searchLower)) ||
+                (u.Email != null && u.Email.ToLower().Contains(searchLower)) ||
+                (u.PhoneNumber != null && u.PhoneNumber.Contains(searchLower)));
+        }
+        var customers = await query
+            .OrderByDescending(u => u.TotalSpent)
+            .Select(u => new
+            {
+                u.Id,
+                u.FullName,
+                u.Email,
+                u.PhoneNumber,
+                u.TotalSpent,
+                OrderCount = _context.Orders.Count(o => o.UserId == u.Id)
+            })
+            .ToListAsync();
+        return Json(customers);
+    }
+
+    // create an api that returns the details of a specific customer, including their order history with program titles and order statuses
+    [HttpGet("Api/Customers/{id}")]
+    public async Task<IActionResult> GetCustomerDetails(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null) return NotFound();
+        var orders = await _context.Orders
+            .Include(o => o.Items).ThenInclude(i => i.Program)
+            .Where(o => o.UserId == id)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync();
+        var model = new
+        {
+            id = user.Id,
+            FirstName = user.FullName,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            TotalSpent = user.TotalSpent,
+            OrderCount = orders.Count,
+            Orders = orders.Select(o => new
+            {
+                o.Id,
+                o.OrderNumber,
+                o.Total,
+                o.CreatedAt,
+                o.Status,
+                Items = o.Items.Select(i => i.Program.TitleAr).ToList()
+            }).ToList()
+        };
+        return Json(model);
+    }
+
 
     // GET: /Admin/Programs/Edit/{id}
     [HttpGet("Programs/Edit/{id}")]
@@ -637,7 +709,7 @@ public class AdminController : Controller
         if (!string.IsNullOrWhiteSpace(search))
         {
             var searchLower = search.ToLower();
-            query = query.Where(u => 
+            query = query.Where(u =>
                 (u.FullName != null && u.FullName.ToLower().Contains(searchLower)) ||
                 (u.Email != null && u.Email.ToLower().Contains(searchLower)) ||
                 (u.PhoneNumber != null && u.PhoneNumber.Contains(searchLower)));

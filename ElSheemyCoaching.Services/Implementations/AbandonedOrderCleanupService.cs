@@ -1,4 +1,5 @@
-﻿using ElSheemyCoaching.Data;
+using ElSheemyCoaching.Data;
+using ElSheemyCoaching.Core.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -33,6 +34,7 @@ namespace ElSheemyCoaching.Services.Implementations
 
                     var abandoned = await context.Orders
                         .Where(o => o.PaymentProof == null &&
+                                    o.Status == OrderStatus.AwaitingVerification &&
                                     o.CreatedAt < DateTime.UtcNow.AddHours(-24))
                         .ToListAsync(stoppingToken);
 
