@@ -98,7 +98,15 @@ public class AccountController : Controller
                     <p>هذا الرمز صالح لمدة 10 دقائق.</p>
                 </div>";
             
-            await _emailService.SendEmailAsync(user.Email!, subject, body);
+            try
+            {
+                await _emailService.SendEmailAsync(user.Email!, subject, body);
+            }
+            catch (Exception)
+            {
+                // The email service already logs the failure; don't crash the request since the account is created.
+                TempData["Error"] = "تم إنشاء حسابك ولكن تعذر إرسال رمز التحقق عبر البريد الإلكتروني. يرجى المحاولة لاحقاً أو التواصل معنا.";
+            }
 
             return RedirectToAction("VerifyOtp", new { userId = user.Id });
         }
